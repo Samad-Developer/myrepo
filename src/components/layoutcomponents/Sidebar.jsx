@@ -14,24 +14,10 @@ const items = [
         children: [
           {
             key: '1',
-            label: 'Areas',
-            link:'areas'
-          },
-          {
-            key: '3',
-            label: 'Country',
-            link:'country'
-          },
-          {
-            key: '4',
-            label: 'Province',
-            link:'province'
-          },
-          {
-            key: '2',
-            label: 'Cities',
-            link:'cities'
-          },
+            label: 'Setting',
+            link:'setting'
+          }
+
         ],
       }
     ],

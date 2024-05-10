@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Space, Button, Checkbox, Popconfirm } from 'antd';
 import { EditTwoTone, DeleteTwoTone } from '@ant-design/icons';
-import SearchForm from '../components/searchform/SearchForm'
+import SearchForm from '../../components/screencomponents/areacomponents/SearchForm'
+
 const Areas = () => {
+
   // Sample data for the table
   const dataSource = [
     {
@@ -86,10 +88,11 @@ const Areas = () => {
       areaEnable: true,
     },
   ];
-
   const [data, setData] = useState(dataSource)
   const [sortedInfo, setSortedInfo] = useState({});
+  const [searchResults, setSearchResults] = useState(data);
 
+  // function for controlling table
   const handleChange = (pagination, filters, sorter) => {
     setSortedInfo(sorter);
   };
@@ -103,8 +106,10 @@ const Areas = () => {
     // Implement delete functionality (be cautious about data modification)
     if (window.confirm(`Are you sure you want to delete area "${record.areaName}"?`)) {
       // Assuming data source is mutable (replace with actual deletion logic)
-      const newData = data.filter((item) => item.key !== record.key);
-      setData(newData);
+      const dataAfterDeletion = data.filter((item) => item.key !== record.key);
+      const seachResultAfterDeletion = searchResults.filter((item) => item.key !== record.key);
+      setData(dataAfterDeletion);
+      setSearchResults(seachResultAfterDeletion)
     }
   };
 
@@ -112,27 +117,50 @@ const Areas = () => {
     // Update the data source based on key and checked value
     const newData = data.map((item) => {
       if (item.key === key) {
-        return { ...item, areaEnable: checked }; // Update areaEnable property
+        return { ...item, areaEnable: checked }; // Update areaEnable property for original data
       }
       return item;
     });
+    const newSearches = searchResults.map((item) => {
+      if (item.key === key) {
+        return { ...item, areaEnable: checked }; // Update areaEnable property for seachResult
+      }
+      return item;
+    });
+    setSearchResults(newSearches)
     setData(newData);
   };
 
+
+  let filteredData = data;  // Start with original data
+
   const handleSearch = async (formData) => {
-    console.log('welcome to Areas.jsx', formData);
-  
-    // Implement search logic to find item based on country
-    const { country } = formData;
-  
-    if (country) {
-      const foundItem = data.find((item) => item.country == country);
-      const check = []
-      check.push(foundItem)
-      setData(check)
+    const { country, city, province, areaEnable, areaName } = formData;
+    // Efficient filtering logic (consider using lodash.pick for optimization)
+    const searchCriteria = {};  
+    if (country) searchCriteria.country = country;
+    if (province) searchCriteria.province = province;
+    if (city) searchCriteria.city = city;
+    if (areaName) searchCriteria.areaName = areaName.toLowerCase(); //
+    if (areaEnable !== '') searchCriteria.areaEnable = areaEnable;
+    // Perform filtering based on search criteria object
+    filteredData = filteredData.filter((item) => {
+      let matches = true;  // Initialize flag for matching criteria
+      for (const key in searchCriteria) {
+        if (key === 'areaName') {
+          // Case-insensitive search for areaName
+          matches = item.areaName.toLowerCase().includes(searchCriteria.areaName);
+          break; // Exit loop after areaName check (faster for large datasets)
+        } else if (item[key] !== searchCriteria[key]) {
+          matches = false;  // If any other criterion doesn't match, exit the loop
+          break;
+        }
+      }
+      return matches;
+    });
+    setSearchResults(filteredData);
   };
-  
-  }
+
   const columns = [
     {
       title: 'Area Name',
@@ -189,12 +217,12 @@ const Areas = () => {
   return (
     <>
       <SearchForm
-        data={data}
+        searchData={data}
         handleSearch={handleSearch}
       />
       <Table
         columns={columns}
-        dataSource={data}
+        dataSource={searchResults}
         onChange={handleChange}
         pagination={{ pageSize: 5 }} />
     </>

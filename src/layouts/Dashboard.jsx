@@ -13,7 +13,7 @@ const Dashboard = () => {
         {/* Sidebar */}
         <Sidebar />
         {/* Main content area */}
-        <div className="flex-1 px-5 py-10">
+        <div className="flex-1 px-5 ">
           <Outlet />
         </div>
       </div>

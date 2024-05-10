@@ -1,43 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Checkbox, Button } from 'antd';
 
-const SearchForm = ({ data, handleSearch }) => {
-  // State variables for form data and dropdown options
+const SearchForm = ({ searchData, handleSearch }) => {
+
   const [formData, setFormData] = useState({
-    country: '',
-    province: '',
-    city: '',
-    areaName: '',
-    areaEnable: '',
+    country: '', province: '', city: '', areaName: '', areaEnable: '',
   });
+  // Set initial filtered options with all available options
+  const [filteredCountries, setFilteredCountries] = useState(
+    [...new Set(searchData.map((item) => item.country))]
+  );
+  const [filteredProvinces, setFilteredProvinces] = useState(
+    [...new Set(searchData.map((item) => item.province))]
+  );
+  const [filteredCities, setFilteredCities] = useState(
+    [...new Set(searchData.map((item) => item.city))]
+  );
 
-  const [countries, setCountries] = useState([]);
-  const [provinces, setProvinces] = useState([]);
-  const [cities, setCities] = useState([]);
-
-  // Extract unique countries, provinces, and cities on data update
   useEffect(() => {
-    const uniqueCountries = [...new Set(data.map((item) => item.country))];
-    const uniqueProvinces = [...new Set(data.map((item) => item.province))];
-    const uniqueCities = [...new Set(data.map((item) => item.city))];
+    // Update filtered options based on new searchData (optional)
+  }, [searchData]);
 
-    setCountries(uniqueCountries);
-    setProvinces(uniqueProvinces);
-    setCities(uniqueCities);
-  }, [data]);
-
-  // Separate handleChange functions for each dropdown
   const handleChangeCountry = (value) => {
     setFormData({ ...formData, country: value });
-    const filteredProvinces = data.filter((item) => item.country === value);
-    setProvinces(filteredProvinces.map((item) => item.province));
-    setCities([]); // Reset cities when country changes
+    // const filteredProvinces = searchData.filter((item) => item.country === value);
+    // setFilteredProvinces([...new Set(filteredProvinces.map((item) => item.province))]);
+    // setFilteredCities([]);
   };
 
   const handleChangeProvince = (value) => {
     setFormData({ ...formData, province: value });
-    const filteredCities = data.filter((item) => item.province === value);
-    setCities(filteredCities.map((item) => item.city));
+    // const filteredCities = searchData.filter((item) => item.province === value);
+    // setFilteredCities([...new Set(filteredCities.map((item) => item.city))]);
   };
 
   const handleChangeCity = (value) => {
@@ -50,21 +44,20 @@ const SearchForm = ({ data, handleSearch }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    handleSearch(formData); // Pass search criteria to parent component
+    handleSearch(formData);
   };
 
   const handleCheckboxChange = (event) => {
+    console.log('handcheckbox is calling',)
     setFormData({ ...formData, areaEnable: event.target.checked });
-  }
-  // ... other functions (handleAreaName, handleCheckboxChange, handleSubmit) remain the same
+  };
 
   return (
     <div className="pb-7">
       <Form layout="inline" onSubmit={handleSubmit}>
         <Form.Item label="Country:" name="country">
-          <Select value={formData.country} onChange={handleChangeCountry}>
-            <option value="">Please Select</option>
-            {countries.map((country) => (
+          <Select style={{ width: 150 }} defaultValue={'Select Country'} value={formData.country} onChange={handleChangeCountry}>
+            {filteredCountries.map((country) => (
               <Select.Option key={country} value={country}>
                 {country}
               </Select.Option>
@@ -72,9 +65,8 @@ const SearchForm = ({ data, handleSearch }) => {
           </Select>
         </Form.Item>
         <Form.Item label="Province:" name="province">
-          <Select value={formData.province} onChange={handleChangeProvince} disabled={!formData.country}>
-            <option value="">Please Select</option>
-            {provinces.map((province) => (
+          <Select style={{ width: 100 }} defaultValue={'Select Province'} value={formData.province} onChange={handleChangeProvince} >
+            {filteredProvinces.map((province) => (
               <Select.Option key={province} value={province}>
                 {province}
               </Select.Option>
@@ -82,9 +74,8 @@ const SearchForm = ({ data, handleSearch }) => {
           </Select>
         </Form.Item>
         <Form.Item label="City:" name="city">
-          <Select value={formData.city} onChange={handleChangeCity} disabled={!formData.country}>
-            <option value="">Please Select</option>
-            {cities.map((city) => (
+          <Select style={{ width: 120 }} defaultValue={'Select City'} value={formData.city} onChange={handleChangeCity}>
+            {filteredCities.map((city) => (
               <Select.Option key={city} value={city}>
                 {city}
               </Select.Option>
